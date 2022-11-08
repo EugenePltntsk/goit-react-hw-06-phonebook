@@ -4,6 +4,8 @@ import { Filter } from 'components/Filter';
 import { nanoid } from 'nanoid';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { addContactAction } from 'redux/store';
 
 import { PhonebookTitle, Wrapper } from './App.styled';
 
@@ -30,7 +32,10 @@ export const App = () => {
 
   const [filter, setFilter] = useState('');
 
+const dispatch = useDispatch();
+
   useEffect(() => {
+    dispatch(addContactAction({ name: "Vlad", numbner: "067" }))
     localStorage.setItem(LOCAL_KEY, JSON.stringify(contacts));
   }, [contacts]);
 
