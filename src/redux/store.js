@@ -1,42 +1,36 @@
-import { createStore, applyMiddleware } from "redux";
-import { composeWithDevTools} from "redux-devtools-extension";
+import { applyMiddleware } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import { configureStore } from '@reduxjs/toolkit';
+import { rootReducer } from './rootReducer';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
-const addContact = "contacts/addContact"
-
-const enchancer = composeWithDevTools(applyMiddleware());
-
-const phoneBookInitialState = {
-    contacts: [],
-    filter: ""
+const persistConfig = {
+  key: 'phoneBook',
+  version: 1,
+  storage,
+  blacklist: "filter"
 };
 
-export const store = createStore(phoneBookReducer, phoneBookInitialState, enchancer);
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+export const store = configureStore({
+  reducer: persistedReducer,
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
+});
 
-
-
-function phoneBookReducer(state=phoneBookInitialState, action) {
-    switch(action.type) {
-        case addContact:
-            return { ...state, contacts: [...state.contacts, action.payload]}
-            default:
-                return state
-    }
-
-}
-
-
-
-// export const addContactAction = {
-//     type: addContact,
-//     payload: {
-//         name: "Evgeniy",
-//         number: "066"
-
-//     }
-// }
-
-export const addContactAction = (value) => {
-
-    return { type: addContact, payload: value }
-}
+export const persistor = persistStore(store);
